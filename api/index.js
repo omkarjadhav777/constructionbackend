@@ -4,26 +4,22 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const entryRoutes = require('../routes/entryRoutes'); // Update if needed
+const entryRoutes = require('../routes/entryRoutes'); // Make sure this is correct!
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/entries', entryRoutes); // Example route
+app.use('/api/entries', entryRoutes);
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+// ✅ NO app.listen() allowed!
 
-// Test route
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB Error:", err));
+
 app.get('/api', (req, res) => {
-  res.json({ message: '🚀 Vercel backend running successfully!' });
+  res.json({ message: "✅ API is working" });
 });
 
 module.exports.handler = serverless(app);
