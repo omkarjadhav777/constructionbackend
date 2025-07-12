@@ -15,6 +15,10 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.error('MongoDB connection failed:', err));
 
 // Test root route
+app.get('/', (req, res) => {
+  res.send('✅ Construction Tracker API is running');
+});
+
 app.get('/api', (req, res) => {
   res.send('✅ API is working');
 });
