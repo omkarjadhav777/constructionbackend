@@ -1,25 +1,20 @@
-const express = require('express');
 const serverless = require('serverless-http');
+const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const entryRoutes = require('../routes/entryRoutes'); // Make sure this is correct!
+const entryRoutes = require('../routes/entryRoutes');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.error('MongoDB connection failed:', err));
+
 app.use('/api/entries', entryRoutes);
 
-// ✅ NO app.listen() allowed!
-
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB Error:", err));
-
-app.get('/api', (req, res) => {
-  res.json({ message: "✅ API is working" });
-});
-
-module.exports.handler = serverless(app);
+// Export serverless handler
+module.exports = serverless(app);
