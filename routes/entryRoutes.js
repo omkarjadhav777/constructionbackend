@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const DailyEntry = require('../models/DailyEntry');
-const calculateRemaining = require('../utils/calculateRemaining.js');
+const calculateRemaining = require('../utils/calculateRemaining');
 
 // POST - Add new entry
 router.post('/', async (req, res) => {
@@ -11,11 +11,12 @@ router.post('/', async (req, res) => {
     await entry.save();
     res.status(201).json(entry);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error in POST /api/entries:', err);
+    res.status(500).json({ message: err.message || "Internal server error" });
   }
 });
 
-// DELETE entry by date (YYYY-MM-DD)
+// DELETE - Entry by Date (YYYY-MM-DD)
 router.delete('/by-date/:date', async (req, res) => {
   try {
     const targetDate = new Date(req.params.date);
@@ -30,30 +31,39 @@ router.delete('/by-date/:date', async (req, res) => {
       return res.status(404).json({ message: 'No entry found for that date' });
     }
 
-    res.json({ message: 'Entry deleted for date: ' + req.params.date });
+    res.json({ message: `Entry deleted for date: ${req.params.date}` });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error in DELETE /api/entries/by-date/:date:', err);
+    res.status(500).json({ message: err.message || "Internal server error" });
   }
 });
 
-// GET - All entries
+// GET - All Entries
 router.get('/', async (req, res) => {
-  const entries = await DailyEntry.find().sort({ date: -1 });
-  res.json(entries);
+  try {
+    const entries = await DailyEntry.find().sort({ date: -1 });
+    res.json(entries);
+  } catch (err) {
+    console.error('Error in GET /api/entries:', err);
+    res.status(500).json({ message: err.message || "Internal server error" });
+  }
 });
 
-// GET latest entry for showing current remaining stock
+// GET - Latest Entry (Remaining stock)
 router.get('/latest', async (req, res) => {
   try {
     const latest = await DailyEntry.findOne().sort({ date: -1 });
-    if (!latest) return res.status(404).json({ message: "No entries yet" });
+    if (!latest) {
+      return res.status(404).json({ message: "No entries yet" });
+    }
     res.json({
       date: latest.date,
-      remainingBlock: latest.remainingBlock,
-      remainingCement: latest.remainingCement
+      remainingBlock: latest.remainingBlock || 0,
+      remainingCement: latest.remainingCement || 0
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error in GET /api/entries/latest:', err);
+    res.status(500).json({ message: err.message || "Internal server error" });
   }
 });
 

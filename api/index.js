@@ -1,10 +1,9 @@
-const serverless = require('serverless-http');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const entryRoutes = require('../routes/entryRoutes');
+const entryRoutes = require('./routes/entryRoutes');
 
 const app = express();
 app.use(cors());
@@ -16,5 +15,4 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use('/api/entries', entryRoutes);
 
-// Export serverless handler
-module.exports = serverless(app);
+module.exports = app; // required for serverless
